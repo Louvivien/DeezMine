@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import QRCode from "qrcode.react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { InputGroup, FormControl } from "react-bootstrap";
-import { deezMine, web3 } from "../config";
+import { ipfs, deezMine, web3 } from "../config";
 import WaitingPlz from "./WaitingPlz";
 import Web3 from "web3";
 import CryptoJS from "crypto-js";
@@ -11,7 +11,6 @@ class GenerateKeys extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      privKey: "",
       addr: "",
       brand: "",
       model: "",
@@ -21,11 +20,15 @@ class GenerateKeys extends Component {
       blockNumber: 0,
       account: "",
       step: 0,
-      encryptResult: ""
+      encryptResult: "",
+      buffer: [],
+      IPFShash: "",
+      photoLog: "Select a picture of instrument (smaller than 1Mo)"
     };
   }
 
   update = async () => {
+    // Nous récuperons l'accompte connecté au navigateur, ainsi que le numéro de block actuel de la blockchain
     const accounts = await web3.eth.getAccounts();
     const account = accounts[0];
     let blockNumber = await web3.eth.getBlockNumber();
@@ -37,12 +40,39 @@ class GenerateKeys extends Component {
   }
 
   keys = () => {
-    let accountCreated = web3.eth.accounts.create(web3.utils.randomHex(32));
-    let privKey = accountCreated.privateKey;
-    let addr = accountCreated.address;
+    // Le state est reinitialisé à chaque demande de génération de nouvelles clées
     this.setState({
-      privKey,
+      addr: "",
+      tagInstrument: "",
+      brand: "",
+      model: "",
+      type: "",
+      serialNumber: "",
+      loading: false,
+      blockNumber: 0,
+      step: 0,
+      encryptResult: "",
+      buffer: [],
+      IPFShash: "",
+      photoLog: "Select a picture of instrument (less than 1Mo)"
+    });
+
+    // Création d'un compte ethereum
+    let accountCreated = web3.eth.accounts.create(web3.utils.randomHex(32));
+
+    // Afin de ne pas avoir à stocker de clé privée dans le state, nous la cryptons.
+    let encryptResult = this._encryptKey(
+      accountCreated.privateKey,
+      "3e168eb237423628ba0e7f665e86bda7b1d7b2aa91e41cfdb2f40125190c48746aQTSNVWeMm61AJ12Ay8cw=="
+    );
+
+    // Stockons la clé cryptée l'adresse et passons à l'étape 2
+    let addr = accountCreated.address;
+    let tagInstrument = `https://www.deezmine.fr/${addr}`;
+    this.setState({
+      encryptResult,
       addr,
+      tagInstrument,
       step: 1
     });
   };
@@ -61,11 +91,16 @@ class GenerateKeys extends Component {
 
   serialNumberEdit = e => {
     let serialNumber = e.target.value;
+    // nous passons le numéro de série en Majuscule pour que l'utilisateur n'ait pas à se soucier de comment le renseigner.
     serialNumber = serialNumber.toUpperCase();
     this.setState({ serialNumber });
   };
 
   exportOnBlockchain = async () => {
+    let hashIpfs = "empty";
+    if (this.state.IPFShash) {
+      hashIpfs = this.state.IPFShash;
+    }
     let name = `${this.state.brand}-${this.state.model}-${this.state.type}`;
     await deezMine.methods
       .checkInInstrument(
@@ -74,7 +109,8 @@ class GenerateKeys extends Component {
         this.state.type,
         name,
         this.state.serialNumber,
-        this.state.addr
+        this.state.addr,
+        hashIpfs
       )
       .send(
         { from: this.state.account, value: Web3.utils.toWei("1", "finney") },
@@ -90,8 +126,6 @@ class GenerateKeys extends Component {
                 let serialNumber = event.returnValues[3];
                 alert(`${name} n#:${serialNumber}, has been registered. `);
                 this.setState({
-                  loading: false,
-                  privKey: "",
                   addr: "",
                   brand: "",
                   model: "",
@@ -99,9 +133,11 @@ class GenerateKeys extends Component {
                   serialNumber: "",
                   loading: false,
                   blockNumber: 0,
-                  account: "",
                   step: 0,
-                  encryptResult: ""
+                  encryptResult: "",
+                  buffer: [],
+                  IPFShash: "",
+                  photoLog: "Select a picture of instrument (less than 1Mo)"
                 });
               }
             }
@@ -112,34 +148,66 @@ class GenerateKeys extends Component {
 
   step2 = () => {
     this.setState({ step: 2 });
-    this._encryptKey();
+    // decryptage de la clé privée
+    let decrypt = this._decryptKey(
+      this.state.encryptResult,
+      "3e168eb237423628ba0e7f665e86bda7b1d7b2aa91e41cfdb2f40125190c48746aQTSNVWeMm61AJ12Ay8cw=="
+    );
+    // encryptage de celle-ci avec le numéro de série
+    let encryptResult = this._encryptKey(decrypt, this.state.serialNumber);
+    this.setState({ encryptResult });
   };
 
   step3 = () => {
+    // l'app conseille de faire une 2 ème carte NFC avec clé privée
     alert(
       "Make sure to encode another NFC card it will be used if first is lost"
     );
     this.setState({ step: 3 });
   };
 
-  _encryptKey = () => {
-    let encryptResult = CryptoJS.AES.encrypt(
-      this.state.privKey,
-      this.state.serialNumber
-    ).toString();
-    this.setState({ encryptResult });
+  _encryptKey = (_somethingtocrypt, password) => {
+    //fonction d'encryptage
+    return CryptoJS.AES.encrypt(_somethingtocrypt, password).toString();
+  };
+
+  _decryptKey = (_encrypt, password) => {
+    // fonction de decryptage
+    let decrypt = CryptoJS.AES.decrypt(_encrypt, password);
+    return decrypt.toString(CryptoJS.enc.Utf8);
+  };
+
+  ipfsUpload = e => {
+    // au moment ou la photo est upload dans l'interface, elle est automatiquement envoyée sur IPFS
+    e.preventDefault();
+    this.setState({ photoLog: "Picture is about to be sent to IPFS" });
+    const fichier = e.target.files[0];
+    const reader = new window.FileReader();
+    reader.readAsArrayBuffer(fichier);
+    reader.onloadend = () => {
+      ipfs.add(Buffer(reader.result), async (error, result) => {
+        this.setState({
+          IPFShash: result[0].hash,
+          photoLog: "Picture is on IPFS"
+        });
+        console.log(this.state.IPFShash);
+      });
+    };
   };
 
   render() {
     return (
-      <div>
+      <div className="m-2 bg-light">
         {this.state.loading ? (
           <WaitingPlz />
         ) : (
           <div>
-            <button className="btn btn-lg btn-dark m-3 " onClick={this.keys}>
-              Generate new key
-            </button>
+            <div>
+              <button className="btn btn-lg btn-dark m-3 " onClick={this.keys}>
+                Generate new key
+              </button>
+            </div>
+
             {this.state.privKey === "" ? (
               <div></div>
             ) : this.state.step === 1 ? (
@@ -157,6 +225,22 @@ class GenerateKeys extends Component {
                   <div className="container-fluid body-content">
                     <div className="center-block">
                       <h4>Infos:</h4>
+                      <div className="input-group mb-3 ">
+                        <div className="input-group-prepend">
+                          <span className="input-group-text">Picture</span>
+                        </div>
+                        <div className="custom-file">
+                          <input
+                            type="file"
+                            className="custom-file-input"
+                            onChange={this.ipfsUpload}
+                          />
+
+                          <label className="custom-file-label ">
+                            {this.state.photoLog}
+                          </label>
+                        </div>
+                      </div>
                       <InputGroup className="mb-3">
                         <InputGroup.Prepend>
                           <InputGroup.Text>Brand</InputGroup.Text>

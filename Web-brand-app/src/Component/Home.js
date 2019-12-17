@@ -17,6 +17,13 @@ class Home extends Component {
         >
           Brand tools
         </Link>
+        <Link
+          to="/user"
+          type="button"
+          className="btn bg-secondary btn-lg btn-block mx-auto"
+        >
+          Users interface
+        </Link>
       </div>
     );
   }

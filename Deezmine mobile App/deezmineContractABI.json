@@ -3,6 +3,38 @@
     "constant": false,
     "inputs": [
       {
+        "name": "_ipfsHash",
+        "type": "string"
+      }
+    ],
+    "name": "addPicture",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_id",
+        "type": "address"
+      },
+      {
+        "name": "_ipfsHash",
+        "type": "string"
+      }
+    ],
+    "name": "addPictureWithWallet",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": false,
+    "inputs": [
+      {
         "name": "_id",
         "type": "address"
       },
@@ -47,6 +79,10 @@
       {
         "name": "_id",
         "type": "address"
+      },
+      {
+        "name": "_picture",
+        "type": "string"
       }
     ],
     "name": "checkInInstrument",
@@ -127,29 +163,6 @@
     "constant": false,
     "inputs": [
       {
-        "name": "_id",
-        "type": "address"
-      },
-      {
-        "name": "_location",
-        "type": "string"
-      }
-    ],
-    "name": "stolenOrLostTest",
-    "outputs": [
-      {
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "constant": false,
-    "inputs": [
-      {
         "name": "_ownerMail",
         "type": "string"
       },
@@ -178,6 +191,14 @@
       {
         "name": "_futurOwner",
         "type": "address"
+      },
+      {
+        "name": "_ownerNickname",
+        "type": "string"
+      },
+      {
+        "name": "_ownerMail",
+        "type": "string"
       }
     ],
     "name": "transfer",
@@ -464,6 +485,44 @@
         "type": "address"
       }
     ],
+    "name": "numberOfInstrumentOwnerGot",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "numberOfPictures",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "numberOfStories",
     "outputs": [
       {
@@ -538,6 +597,52 @@
       {
         "name": "",
         "type": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "ownerOf",
+    "outputs": [
+      {
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
+      },
+      {
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "pictures",
+    "outputs": [
+      {
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "",
+        "type": "address"
       }
     ],
     "name": "serialNumber",
@@ -567,29 +672,6 @@
     "outputs": [
       {
         "name": "",
-        "type": "string"
-      }
-    ],
-    "payable": false,
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "constant": true,
-    "inputs": [
-      {
-        "name": "_id",
-        "type": "address"
-      },
-      {
-        "name": "_idStory",
-        "type": "uint256"
-      }
-    ],
-    "name": "viewStorie",
-    "outputs": [
-      {
-        "name": "_story",
         "type": "string"
       }
     ],

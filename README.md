@@ -1,5 +1,5 @@
 # DeezMine
-## Permettre un suivi de vie d'en instrument de musique et en revendiquer la propriété sur la blockchain Ethereum.
+## Permettre le suivi de vie d'un instrument de musique et en revendiquer la propriété sur la blockchain Ethereum.
 ### Projet final Alyra
 
 

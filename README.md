@@ -10,5 +10,9 @@ Le projet s'articule autour de 2 applications:
 
 ### Application Web:
 
- Elle permet à un fabricant de générer un jeu de clé **Privée/Adresse** utilisable sur le réseau Ethereum:
+ En production sur **https://www.deezmine.fr** permet à un fabricant de générer un jeu de clé **Privée/Adresse** utilisable sur le réseau Ethereum:
  
+![Alt text](./WebApp.png?raw=true "WebApp")
+
+L'application transmet un QRCode lisible par l'App mobile qui ecrira la donnée sur un ship NFC.
+Par ailleurs, l'app web permet aussi de visualiser et ecrire les données relative à un instrument de musique enregistrée sur la blockchain.

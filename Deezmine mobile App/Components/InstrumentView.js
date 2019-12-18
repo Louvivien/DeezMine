@@ -14,6 +14,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import CryptoJS from 'react-native-crypto-js';
 import Story from './Story';
 import Picture from './Picture';
+import {Actions} from 'react-native-router-flux';
 
 export default class InstrumentView extends Component {
   constructor(props) {
@@ -243,7 +244,7 @@ export default class InstrumentView extends Component {
             let transactionObject = {
               from: this.state.id,
               to: CONTRACTADDRESS,
-              gas: 400000,
+              gas: 300000,
               data: tx_builder,
             };
             this.setState({
@@ -283,17 +284,37 @@ export default class InstrumentView extends Component {
 
         // and send it
         web3.eth
-          .sendSignedTransaction(signedTx.rawTransaction)
-          .then(console.log);
-        Alert.alert('Congratulations !!!', 'This instrument has been updated', [
-          {
-            text: 'OK',
-            onPress: () => {
-              this.setState({wait: false, whatCanIChange: '', event: ''});
-              this._getData(this.state.id);
-            },
-          },
-        ]);
+          .sendSignedTransaction(signedTx.rawTransaction, function(
+            error,
+            result,
+          ) {
+            if (error) {
+              Alert.alert('Error !!!', `${error}`, [
+                {
+                  text: 'Ok',
+                },
+              ]);
+            } else {
+              Alert.alert(
+                'Congratulations !!!',
+                'This instrument has been updated',
+                [
+                  {
+                    text: 'OK',
+                  },
+                ],
+              );
+            }
+            console.log(result);
+          })
+          .then(() => {
+            this.setState({
+              wait: false,
+              event: '',
+              log: 'Waiting for blockchain data...',
+            });
+            this._getData(this.state.id);
+          });
       });
   };
 

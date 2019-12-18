@@ -9,10 +9,43 @@ Le projet s'articule autour de 2 applications:
 - Application mobile développé en **React Native**.
 
 ### Application Web:
+En production sur **https://www.deezmine.fr**
+2 Zones distinctes : 
+- Brand tools
+- User interface
 
- En production sur **https://www.deezmine.fr** permet à un fabricant de générer un jeu de clé **Privée/Adresse** utilisable sur le réseau Ethereum:
+#### Brand tools
+ Permet à un fabricant de générer un jeu de clé **Privée/Adresse** utilisable sur le réseau Ethereum:
  
 ![Alt text](./WebApp.png?raw=true "WebApp")
 
 L'application transmet un QRCode lisible par l'App mobile qui ecrira la donnée sur un ship NFC.
-Par ailleurs, l'app web permet aussi de visualiser et ecrire les données relative à un instrument de musique enregistrée sur la blockchain.
+
+#### User intrerface
+ Par ailleurs, l'app web permet aussi de visualiser et ecrire les données relatives à un instrument de musique enregistré sur la blockchain.
+
+![Alt text](./webUser1.png?raw=true "WebApp")
+![Alt text](./webUser2.png?raw=true "WebApp")
+![Alt text](./webUser3.png?raw=true "WebApp")
+
+### Application Mobile:
+Comporte également 2 zones distinctes:
+- Brand tools
+- User interface
+
+![Alt text](./home.png?raw=true "WebApp")
+
+### Brand tools:
+
+ Permet de scanner le QRCode et de l'ecrire sur un ship NFC
+ 
+ ![Alt text](./mobileBrandTool.png?raw=true "WebApp")
+
+### User Interface: 
+
+ Permet de visualiser et modifier les données relatives à l'instrument.
+ 
+![Alt text](./mobileUser1.png?raw=true "WebApp")
+![Alt text](./mobileUser2.png?raw=true "WebApp")
+![Alt text](./mobileUser3.png?raw=true "WebApp")
+![Alt text](./mobileUser4.png?raw=true "WebApp")

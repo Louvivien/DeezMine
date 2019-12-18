@@ -33,19 +33,19 @@ Comporte également 2 zones distinctes:
 - Brand tools
 - User interface
 
-![Alt text](./home.png?raw=true "WebApp")
+![Alt text](./home.jpg?raw=true "WebApp")
 
 ### Brand tools:
 
  Permet de scanner le QRCode et de l'ecrire sur un ship NFC
  
- ![Alt text](./mobileBrandTool.png?raw=true "WebApp")
+ ![Alt text](./mobileBrandTool.jpg?raw=true "WebApp")
 
 ### User Interface: 
 
  Permet de visualiser et modifier les données relatives à l'instrument.
  
-![Alt text](./mobileUser1.png?raw=true "WebApp")
-![Alt text](./mobileUser2.png?raw=true "WebApp")
-![Alt text](./mobileUser3.png?raw=true "WebApp")
-![Alt text](./mobileUser4.png?raw=true "WebApp")
+![Alt text](./mobileUser1.jpg?raw=true "WebApp")
+![Alt text](./mobileUser2.jpg?raw=true "WebApp")
+![Alt text](./mobileUser3.jpg?raw=true "WebApp")
+

@@ -35,7 +35,7 @@ export default class InstrumentView extends Component {
       log: 'Waiting for blockchain data...',
       newOwnerMail: 'contact@deezmine.com',
       newOwnerNickname: '',
-      newOwnerAddress: '',
+      newOwnerAddress: '0x0000000000000000000000000000000000000000',
       newdata: '',
       wait: false,
       event: '',
@@ -77,11 +77,15 @@ export default class InstrumentView extends Component {
       let serialNumber = await deezMine.methods.serialNumber(id).call();
       let ownerMail = await deezMine.methods.ownerMail(id).call();
 
-      if (ownerAddress == id) {
+      if (
+        (ownerAddress == id ||
+          ownerAddress === '0x0000000000000000000000000000000000000000') &&
+        this.state.tag
+      ) {
         Alert.alert(
           'Warning',
           `We suggest you to link your instrument to an ethereum Wallet, ${'\n'}
-          using metamask on a web browser`,
+          For example: metamask on a web browser`,
         );
       }
 
@@ -312,6 +316,7 @@ export default class InstrumentView extends Component {
               wait: false,
               event: '',
               log: 'Waiting for blockchain data...',
+              whatCanIChange: '',
             });
             this._getData(this.state.id);
           });
@@ -368,13 +373,20 @@ export default class InstrumentView extends Component {
                     }}>
                     <Text style={styles.buttonText}>Add event ?</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.button}
-                    onPress={() => {
-                      this.setState({whatCanIChange: 'properties'});
-                    }}>
-                    <Text style={styles.buttonText}>Take ownership ?</Text>
-                  </TouchableOpacity>
+
+                  {this.state.ownerAddress ===
+                    '0x0000000000000000000000000000000000000000' ||
+                  this.state.ownerAddress === this.state.id ? (
+                    <TouchableOpacity
+                      style={styles.button}
+                      onPress={() => {
+                        this.setState({whatCanIChange: 'properties'});
+                      }}>
+                      <Text style={styles.buttonText}>Take ownership ?</Text>
+                    </TouchableOpacity>
+                  ) : (
+                    <View />
+                  )}
                 </View>
               ) : this.state.canChangeProperties === true &&
                 this.state.whatCanIChange === 'properties' ? (

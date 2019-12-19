@@ -1,7 +1,7 @@
 import deezmineContractABI from './deezmineContractABI.json';
 import Web3 from 'web3';
 
-export const CONTRACTADDRESS = '0x0df5640b3da3fe9f2740e364c66abb93aeb75476';
+export const CONTRACTADDRESS = '0xec3ef2395d9e4fc194e9652afb8e4d4493e39938';
 
 export const web3 = new Web3(
   new Web3.providers.HttpProvider(

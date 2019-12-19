@@ -113,7 +113,7 @@ class GenerateKeys extends Component {
         hashIpfs
       )
       .send(
-        { from: this.state.account, value: Web3.utils.toWei("1", "finney") },
+        { from: this.state.account, value: Web3.utils.toWei("10", "finney") },
         () => {
           this.setState({ loading: true });
           deezMine.events.allEvents(

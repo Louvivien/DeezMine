@@ -191,6 +191,11 @@ export default class InstrumentView extends Component {
   };
 
   changeOwner = async () => {
+    if (this.state.newOwnerAddress === this.state.ownerAddress) {
+      alert("transfer can't be done to the same address of the actual owner");
+      this.setState({ newOwnerAddress: "" });
+      this.update();
+    }
     await deezMine.methods
       .transfer(
         this.state.id,
@@ -209,6 +214,33 @@ export default class InstrumentView extends Component {
               alert(`Transfer has been registered`);
               this.setState({
                 newOwnerAddress: "",
+                loading: false
+              });
+            }
+          }
+        );
+      });
+  };
+
+  changeName = async () => {
+    await deezMine.methods
+      .changeOwnerName(
+        this.state.id,
+        this.state.newOwnerNickname,
+        this.state.newOwnerMail
+      )
+      .send({ from: this.state.account }, () => {
+        this.setState({ loading: true });
+        deezMine.events.allEvents(
+          {
+            fromBlock: this.state.blockNumber
+          },
+          (err, event) => {
+            if (!err) {
+              alert(`Transfer has been registered`);
+              this.setState({
+                newOwnerNickname: "",
+                newOwnerMail: "",
                 loading: false
               });
             }
@@ -340,6 +372,26 @@ export default class InstrumentView extends Component {
               >
                 Add story
               </button>
+
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text>New owner Nickname</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl onKeyUp={this.newNickname} />
+              </InputGroup>
+              <InputGroup>
+                <InputGroup.Prepend>
+                  <InputGroup.Text>New owner Mail</InputGroup.Text>
+                </InputGroup.Prepend>
+                <FormControl onKeyUp={this.newMail} />
+              </InputGroup>
+              <button
+                className="btn btn-block btn-info mb-2"
+                onClick={this.changeName}
+              >
+                Change Owner name and mail
+              </button>
+
               <InputGroup>
                 <InputGroup.Prepend>
                   <InputGroup.Text>New owner Address</InputGroup.Text>

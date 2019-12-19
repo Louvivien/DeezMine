@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "https://raw.githubusercontent.com/OpenZeppelin/openzeppelin-solidity/master/contracts/math/SafeMath.sol";
+import "./safemath.sol";
 
 contract Deezmine {
     
@@ -76,9 +76,12 @@ contract Deezmine {
         // Il sera possible, si le nouveau proprio possède un wallet, d'inscrire l'adresse de son wallet comme propriétaire de l'instru.
         // option facultative 
         if(_ownerAdrress != address(0x0)){
-            owner[msg.sender] = _ownerAdrress;
-            ownerOf[_ownerAdrress].push(msg.sender); // on transfer l'instrument dans le "wallet" d'instrument du nouveau proprio
-            numberOfInstrumentOwnerGot[_ownerAdrress] = numberOfInstrumentOwnerGot[_ownerAdrress].add(1);
+            if(owner[msg.sender] != _ownerAdrress){
+                owner[msg.sender] = _ownerAdrress;
+                ownerOf[_ownerAdrress].push(msg.sender); // on transfer l'instrument dans le "wallet" d'instrument du nouveau proprio
+                numberOfInstrumentOwnerGot[_ownerAdrress] = numberOfInstrumentOwnerGot[_ownerAdrress].add(1);
+            } 
+            
         } else {
             owner[msg.sender] = msg.sender; // Si pas de wallet, l'adresse proprio est celle de l'instrument
         }

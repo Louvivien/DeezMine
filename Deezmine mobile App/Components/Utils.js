@@ -4,6 +4,8 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import NfcWritter from './NfcWritter';
 
 export default class Utils extends Component {
+  // Composant permettant au fabricant de récupérer les données d'un QRCode
+  // afin de les ecrire sur un ship NFC
   constructor(props) {
     super(props);
     this.state = {

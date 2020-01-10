@@ -13,6 +13,10 @@ import NfcManager, {
 } from 'react-native-nfc-manager';
 
 export default class NfcReader extends Component {
+  // Component permettant de lire le tag NFC
+  // Il faut rajouter  la permission:
+  // <uses-permission android:name="android.permission.NFC" />
+  // dans android/app/src/ANdroidManifest.xml
   constructor(props) {
     super(props);
     this.state = {

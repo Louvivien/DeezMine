@@ -2,6 +2,8 @@ import React from 'react';
 import {Image, StyleSheet} from 'react-native';
 
 const Picture = props => {
+  // Composant permettant d'afficher les photos de l'instrument
+  // Nous utilisons Infura
   return (
     <Image
       style={styles.stretch}

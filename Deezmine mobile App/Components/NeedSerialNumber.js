@@ -12,6 +12,8 @@ import {
 import {Actions} from 'react-native-router-flux';
 
 export default class NeedSerialNumber extends Component {
+  // Composant permettant de récupérer le numéro de série de l'instrument
+  // afin de décoder la clé privée
   state = {
     serialNumber: '',
   };
@@ -19,11 +21,14 @@ export default class NeedSerialNumber extends Component {
   submit = () => {
     let tag = this.props.tag;
 
+    // Nous décryptons le tag
     let decryptedTag = CryptoJS.AES.decrypt(
       tag,
       this.state.serialNumber.toUpperCase(),
     );
 
+    // Si le tag décrypter nous permet d'obtenir une adresse ethereum
+    // Nous envoyons l'adresse dans le composant instrumentView
     try {
       let id = web3.eth.accounts.privateKeyToAccount(
         decryptedTag.toString(CryptoJS.enc.Utf8),

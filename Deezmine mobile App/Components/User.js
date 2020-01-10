@@ -12,6 +12,10 @@ import NfcReader from './NfcReader';
 import {Actions} from 'react-native-router-flux';
 
 export default class User extends Component {
+  // La premiere étape de la section utilisateur consiste à scanner un tag NFC
+  // Si l'utilisateur scan l'instrument, il bascule directement sur instrumentView et verra les infos de l'instrument
+  // S'il scan la clé privée cryptée, il lui sera demandé le numéro de série de l'instrument
+
   constructor(props) {
     super(props);
     this.state = {
@@ -21,9 +25,13 @@ export default class User extends Component {
 
   _goToInstrumentInfo = () => {
     let id = this.state.tag;
+    // Si le tag commence en "Ox" nous avons une adresse ethereum
+    // potentiellement un instrument enregistré sur la BC
     if (this.state.tag.charAt(0) + this.state.tag.charAt(1) === '0x') {
       Actions.instrumentview({id});
-    } else if (this.state.tag.charAt(0) + this.state.tag.charAt(1) === 'U2') {
+    }
+    // Si le tag commence par "U2" nous saurons qu'il est crypté
+    else if (this.state.tag.charAt(0) + this.state.tag.charAt(1) === 'U2') {
       Actions.needserialnumber({tag: this.state.tag});
     } else {
       Alert('This Nfc Ship is not recognized');
@@ -55,7 +63,6 @@ export default class User extends Component {
     );
   }
 }
-
 const styles = StyleSheet.create({
   stretch: {
     marginLeft: 60,

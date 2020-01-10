@@ -13,6 +13,10 @@ function buildUrlPayload(valueToWrite) {
 }
 
 export default class Writer extends Component {
+  // Composant permettant d'ecrire sur un tag NFC
+  // Il faut rajouter  la permission:
+  // <uses-permission android:name="android.permission.NFC" />
+  // dans android/app/src/ANdroidManifest.xml
   constructor(props) {
     super(props);
     this.state = {

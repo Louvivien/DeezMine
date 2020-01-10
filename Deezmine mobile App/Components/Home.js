@@ -11,6 +11,7 @@ import DeezMine from '../img/DeezMine.jpg';
 import {Actions} from 'react-native-router-flux';
 
 export default class App extends Component {
+  // Menu principal 2 bouttons pour 2 sections Utilisateur, et utilitaire pour brand
   goToUser = () => {
     Actions.user();
   };

@@ -14,12 +14,15 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 import CryptoJS from 'react-native-crypto-js';
 import Story from './Story';
 import Picture from './Picture';
-import {Actions} from 'react-native-router-flux';
 
 export default class InstrumentView extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      // On récupère les données du ship NFC via props
+      // Si l'utilisateur a scanné l'instrument, Id est renseigné
+      // S'il s'agit de la carte NFC qui a été scanné (Clé privée cryptée),
+      // nous conservons la clé crypté dans this.state.tag
       id: this.props.id,
       tag: this.props.tag,
       balance: 0,
@@ -33,9 +36,9 @@ export default class InstrumentView extends Component {
       ownerNickname: '',
       ownerMail: '',
       log: 'Waiting for blockchain data...',
-      newOwnerMail: 'contact@deezmine.com',
+      newOwnerMail: 'contact@deezmine.com', // Mail de base si l'owner n'en renseigne pas
       newOwnerNickname: '',
-      newOwnerAddress: '0x0000000000000000000000000000000000000000',
+      newOwnerAddress: '0x0000000000000000000000000000000000000000', // Adresse de base si l'owner n'en renseigne pas
       newdata: '',
       wait: false,
       event: '',
@@ -48,6 +51,7 @@ export default class InstrumentView extends Component {
   }
 
   componentDidMount() {
+    // Si l'utilisateur scan la clé privée, il aura accés aux méthodes d'ecriture du smart contract
     this._getData(this.state.id);
     if (this.state.tag) {
       this.setState({canChangeProperties: true});
@@ -55,12 +59,17 @@ export default class InstrumentView extends Component {
   }
 
   _getData = async id => {
+    // à l'initianilisation du composant, nous récupérons les données de l'instrument.
     let exist = await deezMine.methods.exist(id).call();
 
+    // Sous condition que l'instrument existe
     if (exist) {
+      // On récupère le timestamp de création de l'instrument puis on le transforme en date lisible
       let birthday = await deezMine.methods.birthDateOfInstrument(id).call();
       birthday = new Date(birthday * 1000);
       birthday = birthday.toDateString();
+
+      // Nous récupérons la balance en Ether de l'instrument
       await web3.eth.getBalance(this.state.id, (error, result) => {
         if (error) {
           this.setState({balance: 0});
@@ -68,15 +77,23 @@ export default class InstrumentView extends Component {
           this.setState({balance: Math.round(result / 1000000000000) / 1000});
         }
       });
+
+      // Nombre de "story" crées sur l'instrument
       let numberOfStories = await deezMine.methods.numberOfStories(id).call();
 
+      // Savoir si l'instrument a été volé ou perdu
+      // Cette option est mise en attente pour développement futur
       let isStolen = await deezMine.methods.isStolenOrLost(id).call();
+
+      // Identité de l'instrument et son owner
       let name = await deezMine.methods.name(id).call();
       let ownerAddress = await deezMine.methods.owner(id).call();
       let ownerNickname = await deezMine.methods.ownerNickName(id).call();
       let serialNumber = await deezMine.methods.serialNumber(id).call();
       let ownerMail = await deezMine.methods.ownerMail(id).call();
 
+      // Si l'instrument n'a pas été affilié à un wallet Ethereum,
+      // nous envoyons un message afin de suggérer au propriétaire de le faire
       if (
         (ownerAddress == id ||
           ownerAddress === '0x0000000000000000000000000000000000000000') &&
@@ -89,6 +106,7 @@ export default class InstrumentView extends Component {
         );
       }
 
+      //MAJ du state
       this.setState({
         exist,
         birthday,
@@ -101,6 +119,7 @@ export default class InstrumentView extends Component {
         numberOfStories,
       });
 
+      // On récupère le nombre de photo de l'instrument puis leur HashIPFS dans un tableau
       let numberOfPictures = await deezMine.methods.numberOfPictures(id).call();
 
       if (numberOfPictures > 0) {
@@ -112,6 +131,7 @@ export default class InstrumentView extends Component {
         this.setState({numberOfPictures, pictures});
       }
 
+      // Si nous avons des "stories" concernant l'instrument nous les envoyons dans un tableau.
       if (numberOfStories > 0) {
         let stories = [];
         for (i = 0; i < numberOfStories; i++) {
@@ -126,6 +146,7 @@ export default class InstrumentView extends Component {
   };
 
   onReadSuccess = e => {
+    // Seulement si nous avons scanné une adresse ethereum (commençant par 0x)
     if (e.data.charAt(0) + e.data.charAt(1) === '0x') {
       this.setState({
         newOwnerAddress: e.data,
@@ -133,6 +154,7 @@ export default class InstrumentView extends Component {
       });
     }
     // Le QRCode renvoyé par metamask commence par "ethereum:" cette methode le supprime
+    // Metamask lorsque nous lui demandons d'afficher le QRcode du wallet affiche ce "ethereum:0x...."
     if (e.data.charAt(0) == 'e' && e.data.charAt(8) == ':') {
       let newOwnerAddress = e.data;
       newOwnerAddress = newOwnerAddress.substr(9);
@@ -144,11 +166,14 @@ export default class InstrumentView extends Component {
   };
 
   takeOwnership = async () => {
+    // Création du message d'attente
     this.setState({
       wait: true,
       log: 'build transaction step 1, please Wait ...',
     });
 
+    // estimation du GAS ... Réel problème à l'application,
+    // J'ai remarqué qu'il était très changeant
     deezMine.methods
       .takeOwnership(
         this.state.newOwnerMail,
@@ -160,6 +185,7 @@ export default class InstrumentView extends Component {
         console.log(gasAmout);
       });
 
+    // On prévient l'utilisateur que ce qu'il fait à un cout, et qu'il doit être sûr de ce qu'il fait
     Alert.alert(
       'Warning !!!',
       `You will send a transaction to the blockchain. ${'\n'}
@@ -173,7 +199,7 @@ export default class InstrumentView extends Component {
         {
           text: 'Agree',
           onPress: () => {
-            // build tx with arguments and encode it
+            // Construction de la Tx
             let tx_builder = deezMine.methods
               .takeOwnership(
                 this.state.newOwnerMail,
@@ -190,16 +216,20 @@ export default class InstrumentView extends Component {
               from: this.state.id,
               to: CONTRACTADDRESS,
               gas: 300000,
+              // Gas estimé , générallement aux alentours des 80 000 mais,
+              // je me suis souvent retrouvé avec des echecs de tx donc méthode "bourrin" :300k
               data: tx_builder,
             };
             this.setState({
               log: 'build transaction step 3, please Wait ...',
             });
 
+            //Nous envoyons l'objet tx à la fonction qui signera et enverra la Tx
             this._sendSignedTx(transactionObject);
           },
         },
         {
+          // On annule tout si l'utilisateur "disagree" le warning
           text: 'Disagree',
           onPress: () =>
             this.setState({
@@ -213,17 +243,10 @@ export default class InstrumentView extends Component {
   };
 
   addEvent = () => {
+    // Fonction similaire dans son architecture à Takeownership()
     this.setState({
       wait: true,
       log: 'build transaction step 1, please Wait ...',
-    });
-
-    // build tx with arguments and encode it
-    let tx_builder = deezMine.methods
-      .createStoryWithKey(this.state.event)
-      .encodeABI();
-    this.setState({
-      log: 'build transaction step 2, please Wait ...',
     });
 
     Alert.alert(
@@ -272,7 +295,7 @@ export default class InstrumentView extends Component {
   };
 
   _sendSignedTx = async transactionObject => {
-    // decrypt privkey
+    // nous decryptons la clé privée
 
     let privKey = CryptoJS.AES.decrypt(
       this.state.tag,
@@ -312,6 +335,7 @@ export default class InstrumentView extends Component {
             console.log(result);
           })
           .then(() => {
+            // puis on reload le composant
             this.setState({
               wait: false,
               event: '',

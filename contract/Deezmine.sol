@@ -2,11 +2,18 @@ pragma solidity ^0.5.0;
 
 import "./safemath.sol";
 
+// Deezmine est une Dapp permettant de revendiquer l'appartenance d'un intrument de musique sur la blockchain Ethereum
+// Il est possible d'ajouter des evenements à la vie d'un instrument
+
+// Toute la Dapp est construite autour d'une "philosophie": 
+// - être accessible à une personne ne connaissant rien au principe de blockchain
+// L'idée étant que l'utilisateur final n'ai pas besoin d'acheter de cryptomonnaie afin d'utiliser le service
+// C'est dans ce cadre que j'ai choisis de ne pas utiliser le standard ERC721 qui nécessite d'avoir un wallet de cryptomonnaie
+
 contract Deezmine {
     
     using SafeMath for uint256;
-    
-    // J'ai pris le parti pris de ne pas utiliser le standard ERC721 que je ne trouve pas adapté à ce cas de figure.
+   
     
     address ownerOfContract;
     
@@ -48,7 +55,7 @@ contract Deezmine {
     // Une app JS créerra un jeu de clé privée et adresse, l'adresse sera inscrite sur le tag NFC de l'instrument et la clé privée sera inscrite sur un chip NFC format carte de crédit et crypté par mot de passe .
     function checkInInstrument(string memory _brand, string memory _model, string memory _instrumentType, string memory _name, string memory _serialNumber, address payable _id, string memory _picture) payable public { 
         require(exist[_id] == false);
-        require(msg.value>= 1 finney);
+        require(msg.value>= 10 finney);
         exist[_id] = true;
         
         brand[_id] = _brand;
@@ -61,7 +68,7 @@ contract Deezmine {
         
         birthDateOfInstrument[_id] = now;
         serialNumber[_id] = _serialNumber;
-        // Le fabricant transfert 1 Finney sur l'adresse de l'instrument pour que le futur propriétaire puisse inscrire ses infos sans avoir besoin d'acheter d'ether.
+        // Le fabricant transfert 10 Finney sur l'adresse de l'instrument pour que le futur propriétaire puisse inscrire ses infos sans avoir besoin d'acheter d'ether.
         (_id).transfer(msg.value);
         
         emit newInstrument(_id,now, _name, _serialNumber );
@@ -87,7 +94,7 @@ contract Deezmine {
         
         string memory details = append(_ownerNickName," is the new owner. mail :", _ownerMail);
         
-        string memory story = append(uint2str(now),"=>",details);
+        string memory story = append(uint2str(now),"=>",details); 
         storieOfInstrument[msg.sender].push(story);
         numberOfStories[msg.sender] = numberOfStories[msg.sender].add(1);
  
@@ -125,7 +132,7 @@ contract Deezmine {
         emit newOwner(_id,now, "NoName");
     }
     
-    // fonction equivalente à takeOwnership dans le cas ou la clé NFC ait été perdu.
+    // fonction equivalente à takeOwnership dans le cas ou la l'instrument a été affilié à un wallet.
     function changeOwnerName(address _id, string memory _newOwnerNickName, string memory _newOwnerMail) public isOwner(_id){
         
         ownerNickName[_id] = _newOwnerNickName;
@@ -204,7 +211,8 @@ contract Deezmine {
     return string(bstr);
 }
     
-    // 2 possibilités: avec l'adresse de l'owner, avec la clé privée de l'instru.
+    // 2 possibilités: avec l'adresse de l'owner:
+    // Si l'instrument a été affilié à un wallet
     function createStory (address _id , string memory _details) public isOwner(_id){
         emit historyEvent(_id,now,_details);
         
@@ -213,6 +221,7 @@ contract Deezmine {
         numberOfStories[_id] = numberOfStories[_id].add(1);
     }
     
+    //avec la clé privée de l'instru.
      function createStoryWithKey (string memory _details) public {
         emit historyEvent(msg.sender,now,_details);
         string memory concatNowDetails = append(uint2str(now),"=>",_details) ;

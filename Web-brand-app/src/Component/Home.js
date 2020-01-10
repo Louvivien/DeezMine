@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import DeezMine from "../img/DeezMine.jpg";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from "react-router-dom";
+import Web3 from "web3";
 
 class Home extends Component {
   render() {

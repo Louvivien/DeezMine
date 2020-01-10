@@ -7,6 +7,8 @@ import Story from "./Story";
 import WaitingPlz from "./WaitingPlz";
 
 export default class InstrumentView extends Component {
+  // Composant semblable à celui de l'application mobile, mais avec des options supplémentaires
+
   constructor(props) {
     super(props);
     this.state = {
@@ -43,6 +45,7 @@ export default class InstrumentView extends Component {
   }
 
   update = async () => {
+    // récup des infos de l'instrument
     let exist = await deezMine.methods.exist(this.state.id).call();
 
     if (exist) {
@@ -130,6 +133,8 @@ export default class InstrumentView extends Component {
   };
 
   addPicture = async () => {
+    // Fonction d'ajout de hashIPFS de la photo qui vient d'être envoyée sur IPFS
+
     if (this.state.photoLog === "Ready !!!") {
       await deezMine.methods
         .addPictureWithWallet(this.state.id, this.state.IPFShash)
@@ -155,6 +160,7 @@ export default class InstrumentView extends Component {
   };
 
   addStory = async () => {
+    // ajout de "story" à l'instrument
     this.setState({ loading: true });
     await deezMine.methods
       .createStory(this.state.id, this.state.newStory)
@@ -191,6 +197,7 @@ export default class InstrumentView extends Component {
   };
 
   changeOwner = async () => {
+    // Changement de propriétaire
     if (this.state.newOwnerAddress === this.state.ownerAddress) {
       alert("transfer can't be done to the same address of the actual owner");
       this.setState({ newOwnerAddress: "" });
@@ -223,6 +230,7 @@ export default class InstrumentView extends Component {
   };
 
   changeName = async () => {
+    // Permet de changer le nom et/ou le mail du propriétaire
     await deezMine.methods
       .changeOwnerName(
         this.state.id,
@@ -254,6 +262,8 @@ export default class InstrumentView extends Component {
   };
 
   declareStolenOrLost = async () => {
+    // permet de déclarer son instrument volé ou perdu
+    // Fonction assez inutile pour le moment, mais j'ai quelques idées pour le futur
     await deezMine.methods
       .declareStolenOrLost(this.state.id, this.state.stolenDetails)
       .send({ from: this.state.account }, () => {
@@ -279,6 +289,7 @@ export default class InstrumentView extends Component {
     this.setState({ recoverDetails: e.target.value });
   };
   declarerecovered = async () => {
+    // Nous pouvons déclarer l'instru retrouvé
     await deezMine.methods
       .declareRecover(this.state.id, this.state.recoverDetails)
       .send({ from: this.state.account }, () => {

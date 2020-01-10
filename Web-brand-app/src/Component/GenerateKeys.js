@@ -41,6 +41,7 @@ class GenerateKeys extends Component {
 
   keys = () => {
     // Le state est reinitialisé à chaque demande de génération de nouvelles clées
+    // excepté blocknumber
     this.setState({
       addr: "",
       tagInstrument: "",
@@ -49,7 +50,6 @@ class GenerateKeys extends Component {
       type: "",
       serialNumber: "",
       loading: false,
-      blockNumber: 0,
       step: 0,
       encryptResult: "",
       buffer: [],
@@ -60,7 +60,8 @@ class GenerateKeys extends Component {
     // Création d'un compte ethereum
     let accountCreated = web3.eth.accounts.create(web3.utils.randomHex(32));
 
-    // Afin de ne pas avoir à stocker de clé privée dans le state, nous la cryptons.
+    // Afin de ne pas avoir à stocker de clé privée dans le state, nous la cryptons entre 2 étapes
+    // avec un mot de passe à ralonge.
     let encryptResult = this._encryptKey(
       accountCreated.privateKey,
       "3e168eb237423628ba0e7f665e86bda7b1d7b2aa91e41cfdb2f40125190c48746aQTSNVWeMm61AJ12Ay8cw=="
@@ -68,7 +69,13 @@ class GenerateKeys extends Component {
 
     // Stockons la clé cryptée l'adresse et passons à l'étape 2
     let addr = accountCreated.address;
+
+    //StandBy sur cette option, l'idée étant que l'on puisse scanner l'instrument sans avoir l'application mobile
+    // nous serions redirigé vers le site deezmine avec comme argument l'adresse eth de l'instrument
+    // pouvant ainsi afficher les infos de l'instru
+    // une lacune en backend m'ont empéché de mettre cela en production
     let tagInstrument = `https://www.deezmine.fr/${addr}`;
+
     this.setState({
       encryptResult,
       addr,
@@ -97,10 +104,12 @@ class GenerateKeys extends Component {
   };
 
   exportOnBlockchain = async () => {
+    // Si nous n'avons pas mis d'image
     let hashIpfs = "empty";
     if (this.state.IPFShash) {
       hashIpfs = this.state.IPFShash;
     }
+    // Le nom de l'instrument est une concaténation de marque-model-type
     let name = `${this.state.brand}-${this.state.model}-${this.state.type}`;
     await deezMine.methods
       .checkInInstrument(
@@ -113,6 +122,7 @@ class GenerateKeys extends Component {
         hashIpfs
       )
       .send(
+        // Nous envoyons 10 finney à l'instrument pour que le futur propriétaire puisse prendre prorpiété de l'instrument
         { from: this.state.account, value: Web3.utils.toWei("10", "finney") },
         () => {
           this.setState({ loading: true });
@@ -122,6 +132,7 @@ class GenerateKeys extends Component {
             },
             (err, event) => {
               if (!err) {
+                // Si la tx s'est bien réalisée, nous alertons le fabricant
                 let name = event.returnValues[2];
                 let serialNumber = event.returnValues[3];
                 alert(`${name} n#:${serialNumber}, has been registered. `);
@@ -132,7 +143,6 @@ class GenerateKeys extends Component {
                   type: "",
                   serialNumber: "",
                   loading: false,
-                  blockNumber: 0,
                   step: 0,
                   encryptResult: "",
                   buffer: [],
@@ -154,12 +164,14 @@ class GenerateKeys extends Component {
       "3e168eb237423628ba0e7f665e86bda7b1d7b2aa91e41cfdb2f40125190c48746aQTSNVWeMm61AJ12Ay8cw=="
     );
     // encryptage de celle-ci avec le numéro de série
+    // à cette étape, le QRCode affiché sera celui de la clé privée crypté
     let encryptResult = this._encryptKey(decrypt, this.state.serialNumber);
     this.setState({ encryptResult });
   };
 
   step3 = () => {
-    // l'app conseille de faire une 2 ème carte NFC avec clé privée
+    // l'app conseille de faire une 2 ème carte NFC avec clé privée cryptée
+    // en cas de perte
     alert(
       "Make sure to encode another NFC card it will be used if first is lost"
     );
@@ -167,7 +179,8 @@ class GenerateKeys extends Component {
   };
 
   _encryptKey = (_somethingtocrypt, password) => {
-    //fonction d'encryptage
+    //fonction d'encryptage indispensable afin que la clé privée
+    //ne soit jamais stockée dans le state de façon lisible
     return CryptoJS.AES.encrypt(_somethingtocrypt, password).toString();
   };
 

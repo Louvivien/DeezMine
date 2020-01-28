@@ -13,16 +13,6 @@ import "./safemath.sol";
 contract Deezmine {
     
     using SafeMath for uint256;
-   
-    
-    
-    event newInstrument(address _id,uint _date, string _name, string _serialNumber); 
-    event newOwner(address _id, uint date, string _ownerNickName);
-    event hasBeenStolenOrLost(address _id, uint date, string _message);
-    event hasBeenRecover(address _id, uint date, string _message);
-    event warningAlarm(address _id, uint date, string _location);
-    event historyEvent(address _id,uint _date, string _details);
-    
     
     // Caractéristique d'un instrument. Celui-ci est représenté par une adresse 
     
@@ -45,6 +35,23 @@ contract Deezmine {
     
     mapping (address => string[]) public pictures;
     mapping (address => uint) public numberOfPictures;
+    
+    mapping (address => string[]) public storieOfInstrument;
+    mapping (address => uint) public numberOfStories;
+    
+        
+    event newInstrument(address _id,uint _date, string _name, string _serialNumber); 
+    event newOwner(address _id, uint date, string _ownerNickName);
+    event hasBeenStolenOrLost(address _id, uint date, string _message);
+    event hasBeenRecover(address _id, uint date, string _message);
+    event warningAlarm(address _id, uint date, string _location);
+    event historyEvent(address _id,uint _date, string _details);
+    
+        
+     modifier isOwner(address _id){
+        require(owner[_id] == msg.sender);
+        _;
+    }
     
     //-------------------------------------------------------------------------//
     //--------------Enregistrement et transfer de l'instrument-----------------//
@@ -101,11 +108,7 @@ contract Deezmine {
         ownerNickName[msg.sender] = _ownerNickName;
         emit newOwner(msg.sender,now,_ownerNickName);
     }
-    
-     modifier isOwner(address _id){
-        require(owner[_id] == msg.sender);
-        _;
-    }
+
     
     // Méthode de transfer de particulier à particulier en cas de perte du ship NFC format carte de crédit.
     // Le owner doit connaitre l'address du futur owner, et avoir déjà inscrit son adresse comme propriétaire de l'instru.
@@ -208,9 +211,7 @@ contract Deezmine {
     //-------------------------------------------------------------------------//
     //----------------------Historique de l'instrument-------------------------//
     //-------------------------------------------------------------------------//
-    
-    mapping (address => string[]) public storieOfInstrument;
-    mapping (address => uint) public numberOfStories;
+
     
     // fonction permettant de concaténer 3 string 
     function append(string memory a,string memory b, string memory c) internal pure returns (string memory) {

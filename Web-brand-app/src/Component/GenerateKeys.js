@@ -194,18 +194,22 @@ class GenerateKeys extends Component {
     // au moment ou la photo est upload dans l'interface, elle est automatiquement envoyée sur IPFS
     e.preventDefault();
     this.setState({ photoLog: "Picture is about to be sent to IPFS" });
-    const fichier = e.target.files[0];
-    const reader = new window.FileReader();
-    reader.readAsArrayBuffer(fichier);
-    reader.onloadend = () => {
-      ipfs.add(Buffer(reader.result), async (error, result) => {
-        this.setState({
-          IPFShash: result[0].hash,
-          photoLog: "Picture is on IPFS"
+    try {
+      const fichier = e.target.files[0];
+      const reader = new window.FileReader();
+      reader.readAsArrayBuffer(fichier);
+      reader.onloadend = () => {
+        ipfs.add(Buffer(reader.result), async (error, result) => {
+          this.setState({
+            IPFShash: result[0].hash,
+            photoLog: "Picture is on IPFS"
+          });
+          console.log(this.state.IPFShash);
         });
-        console.log(this.state.IPFShash);
-      });
-    };
+      };
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   render() {

@@ -133,22 +133,4 @@ contract("Deezmine", async accounts => {
         ownerOfInstrument === accounts[2]
     );
   });
-
-  /*it("retour d'un instrument à son ancien propriétaire OK", async () => {
-    await instance.transfer(accounts[2], accounts[3], "Sly", "a@a.com", {
-      from: accounts[6]
-    });
-
-    let ownerInstrument = await instance.owner(accounts[2]);
-    let mailInstrument = await instance.ownerMail(accounts[2]);
-    let nickNameInstrument = await instance.ownerNickName(accounts[2]);
-    let ownerOfInstrument = await instance.ownerOf(accounts[2], 0);
-    console.log(ownerOfInstrument);
-    assert(
-      ownerInstrument === accounts[3] &&
-        mailInstrument === "a@a.com" &&
-        nickNameInstrument === "Sly" //&&
-      //ownerOfInstrument === accounts[2]
-    );
-  });*/
 });

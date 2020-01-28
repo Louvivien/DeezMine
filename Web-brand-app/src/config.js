@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import deezmineContractABI from "./deezmineContractABI.json";
 
-export const CONTRACT_ADDRESS = "0xec3ef2395d9e4fc194e9652afb8e4d4493e39938";
+export const CONTRACT_ADDRESS = "0x0124e90b9638677fae8e22e4b37f9bfe8c0df326";
 
 export const web3 = new Web3(
   Web3.givenProvider || "kovan.infura.io/v3/da3c3685867d470b8b9a8a6dffd6ffd0"

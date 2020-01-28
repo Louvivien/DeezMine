@@ -15,7 +15,6 @@ contract Deezmine {
     using SafeMath for uint256;
    
     
-    address ownerOfContract;
     
     event newInstrument(address _id,uint _date, string _name, string _serialNumber); 
     event newOwner(address _id, uint date, string _ownerNickName);
@@ -115,13 +114,40 @@ contract Deezmine {
         numberOfInstrumentOwnerGot[msg.sender] = numberOfInstrumentOwnerGot[msg.sender].sub(1);
         numberOfInstrumentOwnerGot[_futurOwner] = numberOfInstrumentOwnerGot[_futurOwner].add(1);
         owner[_id] = _futurOwner;
-        ownerOf[_futurOwner].push(_id);
+        
+        // Nous utilisons "delete" pour supprimer l'instrument du "stock" de l'ancien propriétaire.
+        uint idToDelete;
+        bool found = false;
         
         for(uint i=0; i<ownerOf[msg.sender].length;i++){
             if(ownerOf[msg.sender][i] == _id){
-                delete(ownerOf[msg.sender][i]);
+                found = true;
+                idToDelete = i;
+                break;
             }
         }
+        if(found == true){
+            delete(ownerOf[msg.sender][idToDelete]);
+        }
+        
+        // La methode delete remplaçant une address par l'adresse(0x0) nous devons vérifier s'il y en a une
+        // et remplacer (0x0) par la nouvelle adresse
+        bool replaceOk = false;
+        for(uint i=0; i<ownerOf[_futurOwner].length; i++){
+            if (ownerOf[_futurOwner][i]== address(0x0)){
+                ownerOf[_futurOwner][i] = _id;
+                replaceOk = true;
+                break;
+            }
+        }
+        
+        // Sinon on fait un simple push
+        if(replaceOk==false){
+            ownerOf[_futurOwner].push(_id);
+        }
+        
+        
+        
         ownerNickName[_id] = _ownerNickname;
         ownerMail[_id] = _ownerMail;
         string memory details = append(_ownerNickname," is the new owner. mail :", _ownerMail);
